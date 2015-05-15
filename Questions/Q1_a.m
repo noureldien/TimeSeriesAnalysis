@@ -28,22 +28,23 @@ arOrder = 3;
 % hold on;
 % grid on;
 % box on;
+% axis([0 120 -inf inf]);
 % plot(yTrain, 'b', 'LineWidth', 1);
 % plot(yEstm, 'r', 'LineWidth', 1);
 % xlabel('Time (month)', 'FontSize', 16);
-% ylabel('Stock Value', 'FontSize', 16);
+% ylabel('Value', 'FontSize', 16);
 % title('Index Prediction using AR(3) Model', 'FontSize', 16);
 % plot_legend = legend('Actual', 'Predicted', 'Location', 'SE');
-% set(plot_legend, 'FontSize', 12);
+% set(plot_legend, 'FontSize', 10);
 % subplot(2,1,2);
 % hold on;
 % grid on;
 % box on;
-% plot(arResidual, 'b', 'LineWidth', 1);
+% axis([0 120 -inf inf]);
+% plot(abs(arResidual), 'b', 'LineWidth', 1);
 % xlabel('Time (month)', 'FontSize', 16);
-% ylabel('Stock Value', 'FontSize', 16);
-% title('Prediction Error', 'FontSize', 16);
-% disp(arVariance);
+% ylabel('Value', 'FontSize', 16);
+% title('Prediction Error (Absolute)', 'FontSize', 16);
 
 
 

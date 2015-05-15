@@ -4,6 +4,8 @@
 
 clc;
 
+return;
+
 %confband(t,out.x(1,:)',out.xstd(:,1));
 %errorbar(t,y,2*V,'ok-');
 

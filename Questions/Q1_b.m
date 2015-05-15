@@ -30,33 +30,63 @@ yEstmKf = kalmanFilter(yTrain, kfOrder, kfS, kfWindow);
 errorAR = abs(yTrain - yEstmAR);
 errorKm = abs(yTrain - yEstmKf);
 
-% plot the AR estimates vs the training
-coloMap = lines(30);
-colorGreen = [0 0.7 0.2];
-figure(1); clf;
-subplot(2,1,1);
-hold on;
-grid on;
-box on;
-plot1 = plot(yEstmAR, 'LineWidth', 1, 'Color', coloMap(1,:));
-plot2 = plot(yEstmKf, 'LineWidth', 1, 'Color', coloMap(2,:));
-plot3 = plot(yTrain, 'LineWidth', 1, 'Color', colorGreen);
-xlabel('Time (month)', 'FontSize', 16);
-ylabel('Stock Value', 'FontSize', 16);
-title('Index Prediction', 'FontSize', 16);
-plot_legend = legend([plot3, plot1, plot2], {'Actual', 'AR Prediction', 'KF Prediction'}, 'Location', 'SE');
-set(plot_legend, 'FontSize', 12);
-subplot(2,1,2);
-hold on;
-grid on;
-box on;
-plot(errorAR, 'LineWidth', 1, 'Color', coloMap(1,:));
-plot(errorKm, 'LineWidth', 1, 'Color', coloMap(2,:));
-xlabel('Time (month)', 'FontSize', 16);
-ylabel('Stock Value', 'FontSize', 16);
-title('Prediction Error', 'FontSize', 16);
-plot_legend = legend('AR Prediction', 'KF Prediction', 'Location', 'SE');
-set(plot_legend, 'FontSize', 12);
+% % plot the AR/Kalman estimates vs the training
+% coloMap = lines(30);
+% colorGreen = [0 0.7 0.2];
+% figure(2); clf;
+% subplot(2,1,1);
+% hold on;
+% grid on;
+% box on;
+% axis([0 120 700 1600]);
+% plot1 = plot(yEstmAR, 'LineWidth', 1, 'Color', 'r');
+% plot2 = plot(yEstmKf, 'LineWidth', 1, 'Color', 'b');
+% plot3 = plot(yTrain, 'LineWidth', 1, 'Color', colorGreen);
+% xlabel('Time (month)', 'FontSize', 16);
+% ylabel('Value', 'FontSize', 16);
+% title('Index Prediction using Kalman and AR', 'FontSize', 16);
+% plot_legend = legend([plot3, plot1, plot2], {'Actual', 'AR Prediction', 'KF Prediction'}, 'Location', 'SE');
+% set(plot_legend, 'FontSize', 10);
+% subplot(2,1,2);
+% hold on;
+% grid on;
+% box on;
+% axis([0 120 -inf 250]);
+% plot(abs(errorAR), 'LineWidth', 1, 'Color', 'r');
+% plot(abs(errorKm), 'LineWidth', 1, 'Color', 'b');
+% xlabel('Time (month)', 'FontSize', 16);
+% ylabel('Value', 'FontSize', 16);
+% title('Prediction Error (Absolute)', 'FontSize', 16);
+% plot_legend = legend('AR Prediction', 'KF Prediction', 'Location', 'NE');
+% set(plot_legend, 'FontSize', 10);
+
+% figure(3); clf;
+% hold on;
+% grid on;
+% box on;
+% boxplot([abs(errorAR), abs(errorKm)]);
+% ylim([-20 200]);
+% xlabel('AR             KF', 'FontSize', 16);
+% ylabel('Value', 'FontSize', 16);
+% title('Error (Absolute)', 'FontSize', 16);
+
+% % plot effect of small and high QR ratio
+% colorGreen = [0 0.7 0.2];
+% figure(2); clf;
+% hold on;
+% grid on;
+% box on;
+% axis([0 120 700 1600]);
+% plot1 = plot(yEstmKf1, 'LineWidth', 1, 'Color', 'r');
+% plot2 = plot(yEstmKf2, 'LineWidth', 1, 'Color', 'b');
+% plot3 = plot(yTrain, 'LineWidth', 1, 'Color', colorGreen);
+% xlabel('Time (month)', 'FontSize', 16);
+% ylabel('Value', 'FontSize', 16);
+% title('Index Prediction using Kalman and AR', 'FontSize', 16);
+% plot_legend = legend([plot3, plot1, plot2], {'Actual', 'Avg. RQ Ratio', 'Big RQ Ratio'}, 'Location', 'SW');
+% set(plot_legend, 'FontSize', 10);
+
+
 
 
 
