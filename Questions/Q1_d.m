@@ -22,125 +22,68 @@ end
 % micro-ecoonomic predictor has a greate influence
 % in predicting the stock index
 
-% lassoTarget is the sliding window of stock index
-y
-% for i=window+1:size(yTrain, 1)
-%     %lassoWeights = lassoRegression(dataFeatures, yTrain, lassoTaw);
-%     idxS = i-30;
-%     idxE = i-1;
-%     target = yTrain(idxS:idxE);
-%     features = normFeatures(idxS:idxE,:);
-%     %[lassoWeights, lassoInfo] = lasso(features, target, ...
-%     %                               'Alpha', lassoTaw, 'Lambda', ones(window, 1));
-%     lassoWeights = lassoRegression(features, target, lassoTaw);
-%     lassoWeights = lassoRegression(features.*lassoWeights', target, lassoTaw);
-%     result = features*lassoWeights;
-% end
+% normalize the regression target
+yTrain = yTrain - mean(yTrain);
+yTrain = yTrain / std(yTrain);
 
+yEstmAR = yEstmAR - mean(yEstmAR);
+yEstmAR = yEstmAR / std(yEstmAR);
 
-lassoTarget = yTrain;
+yEstmKf = yEstmKf - mean(yEstmKf);
+yEstmKf = yEstmKf / std(yEstmKf);
 
-lassoTarget = lassoTarget - mean(lassoTarget);
-lassoTarget = lassoTarget / std(lassoTarget);
+% estimate of the index using LagLasso
+yEstmLL = yTrain;
+lagWindow = 10;
 
-% lasso regression
-[lassoWeights,lassoInfo] = lasso(normFeatures,lassoTarget);
-lassoLambda = lassoInfo.Lambda;
+lambdas = [];
 
-% find the best set of weights by calculating the error
-lassoErrors = zeros(length(lassoInfo.Lambda),1);
-for i=1:length(lassoErrors)
-lassoResult = normFeatures * lassoWeights(:, i);
-lassoErrors(i) = mean(abs(lassoResult-lassoTarget));
+%lassoTarget is the sliding window of stock index
+for i=lagWindow+1:size(yTrain, 1)
+    i
+    idxS = i-lagWindow;
+    idxE = i-1;
+    lassoTarget = yTrain(idxS:idxE);
+    lassoFeatures = normFeatures(idxS:idxE,:);
+       
+    % lasso regression
+    [lassoWeights, lassoInfo] = lasso(lassoFeatures, lassoTarget);
+    lassoLambda = lassoInfo.Lambda;
+    
+    % find the best set of weights by calculating the error
+    lassoErrors = zeros(length(lassoInfo.Lambda),1);
+    for j=1:length(lassoErrors)
+        lassoResult = lassoFeatures * lassoWeights(:, j);
+        lassoErrors(j) = mean(abs(lassoResult-lassoTarget));
+    end
+    
+    [~,idx] = sort(lassoErrors);
+    lambdas = [lambdas, lassoLambda(idx(1))];
+    % estimate current stock index
+    yEstmLL(i) = normFeatures(i,:) * lassoWeights(:, idx(1));
 end
 
-[~,idx] = sort(lassoErrors);
-% use the weights of the smallest error
-% it is chosen imperically
-lassoResult = normFeatures * lassoWeights(:, idx(1));
-
-% plot the errors of lasso
+% plot regression error
 figure(1); clf;
 hold on;
 grid on;
 box on;
-plot(lassoLambda, lassoErrors, 'LineWidth', 2);
+plot(abs(yEstmLL-yTrain), 'LineWidth', 2);
 xlabel('Lasso Regulariser', 'FontSize', 16);
 ylabel('Error', 'FontSize', 16);
 title('Error (Absolute) of Lasso Regression', 'FontSize', 16);
 
-% plot the weights
-figure(2); clf;
-colorMap = lines(10);
-hold on;
-grid on;
-box on;
-plot(lassoLambda, lassoWeights', 'LineWidth', 2);
-xlabel('Lasso Regulariser', 'FontSize', 16);
-ylabel('Weight Value', 'FontSize', 16);
-title('Decay of Feature Weights in Lasso Regression', 'FontSize', 16);
-plot_legend = legend('BER','OIL','PMI','INCOME','PROFIT','POP','UNEMP', 'Location', 'SE');
-set(plot_legend, 'FontSize', 10);
-
-return;
-
-% plot the AR/Kalman estimates vs the training
+% plot the AR/Kalman/LagLasso estimates vs the training
 coloMap = lines(30);
 colorGreen = [0 0.7 0.2];
 figure(3); clf;
 hold on;
 grid on;
 box on;
-plot1 = plot(lassoTarget, 'LineWidth', 1, 'Color', 'b');
-plot2 = plot(lassoResult, 'LineWidth', 1, 'Color', 'r');
+plot(yTrain, 'LineWidth', 1, 'Color', 'k');
+plot(yEstmAR, 'LineWidth', 1, 'Color', 'r');
+plot(yEstmKf, 'LineWidth', 1, 'Color', 'b');
+plot(yEstmLL, 'LineWidth', 1, 'Color', colorGreen);
 xlabel('Time (month)', 'FontSize', 16);
 ylabel('Value', 'FontSize', 16);
 title('Index Prediction using Kalman and AR', 'FontSize', 16);
-
-return;
-
-% estimates of the stock index after sparse regression
-yEstmLassoTrain = normFeatures*lassoWeights;
-%yEstmLassoTrain = yEstmLassoTrain+1200;
-
-% plot the AR/Kalman estimates vs the training
-coloMap = lines(30);
-colorGreen = [0 0.7 0.2];
-figure(2); clf;
-%subplot(2,1,1);
-hold on;
-grid on;
-box on;
-axis([0 120 700 1600]);
-plot1 = plot(yEstmAR, 'LineWidth', 1, 'Color', 'r');
-plot2 = plot(yEstmKf, 'LineWidth', 1, 'Color', 'b');
-plot3 = plot(yTrain, 'LineWidth', 1, 'Color', colorGreen);
-plot4 = plot(yEstmLassoTrain, 'LineWidth', 1, 'Color', 'k');
-xlabel('Time (month)', 'FontSize', 16);
-ylabel('Value', 'FontSize', 16);
-title('Index Prediction using Kalman and AR', 'FontSize', 16);
-%plot_legend = legend([plot3, plot1, plot2], {'Actual', 'AR Prediction', 'KF Prediction'}, 'Location', 'SE');
-%set(plot_legend, 'FontSize', 10);
-% subplot(2,1,2);
-% hold on;
-% grid on;
-% box on;
-% axis([0 120 -inf 250]);
-% plot(abs(errorAR), 'LineWidth', 1, 'Color', 'r');
-% plot(abs(errorKm), 'LineWidth', 1, 'Color', 'b');
-% xlabel('Time (month)', 'FontSize', 16);
-% ylabel('Value', 'FontSize', 16);
-% title('Prediction Error (Absolute)', 'FontSize', 16);
-% plot_legend = legend('AR Prediction', 'KF Prediction', 'Location', 'NE');
-% set(plot_legend, 'FontSize', 10);
-
-
-
-
-
-
-
-
-
-
-
